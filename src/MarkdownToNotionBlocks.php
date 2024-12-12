@@ -32,7 +32,11 @@ class MarkdownToNotionBlocks {
      * @throws CommonMarkException|ReflectionException
      */
     public static function array(string $markdown): array {
-        return json_decode(self::convert($markdown)->getContent(), true);
+        $notion_blocks = json_decode(self::convert($markdown)->getContent(), true);
+
+        return json_last_error() !== JSON_ERROR_NONE
+            ? [ 'error' => json_last_error_msg() ]
+            : $notion_blocks;
     }
 
     /**
