@@ -78,7 +78,18 @@ class NotionBlocksRenderer implements DocumentRendererInterface {
          */
         $json = array_chunk($json, 100);
 
-        return new NotionRenderedContent($document, json_encode($json));
+        /**
+         * Convert the array to JSON.
+         *
+         * We're using the `JSON_INVALID_UTF8_IGNORE` flag to ignore invalid UTF-8 characters.
+         *
+         * This is because some markdown files were triggering a syntax error.
+         *
+         * @since 1.2.2
+         */
+        $content = json_encode($json, JSON_INVALID_UTF8_IGNORE);
+
+        return new NotionRenderedContent($document, $content);
     }
 
     /**
