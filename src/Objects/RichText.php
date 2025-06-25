@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RoelMR\MarkdownToNotionBlocks\Objects;
 
 use League\CommonMark\Extension\CommonMark\Node\Inline\AbstractWebResource;
@@ -11,7 +13,8 @@ use League\CommonMark\Node\Inline\Newline;
 use League\CommonMark\Node\Node;
 use League\CommonMark\Node\StringContainerInterface;
 
-class RichText {
+final class RichText
+{
     /**
      * The children nodes.
      *
@@ -19,19 +22,32 @@ class RichText {
      *
      * @var Node[] The children nodes.
      */
-    protected array $childNodes = [];
+    private array $childNodes = [];
 
     /**
      * RichText constructor.
      *
      * @since 1.0.0
      *
-     * @param Node $node The node.
+     * @param  Node  $node  The node.
      *
      * @see https://developers.notion.com/reference/rich-text
      */
-    public function __construct(public Node $node) {
+    public function __construct(public Node $node)
+    {
         $this->childNodes = $this->node->hasChildren() ? $this->node->children() : [$this->node];
+    }
+
+    /**
+     * Convert the rich text to an array.
+     *
+     * @since 1.0.0
+     *
+     * @return array The rich text.
+     */
+    public function toArray(): array
+    {
+        return !empty($this->childNodes) ? $this->objects() : [];
     }
 
     /**
@@ -39,12 +55,12 @@ class RichText {
      * These are the objects that a rich text can have: text and annotations.
      *
      * @since 1.0.0
-     *
      * @see https://developers.notion.com/reference/rich-text
      *
      * @return array The rich text objects.
      */
-    protected function objects(): array {
+    private function objects(): array
+    {
         $objects = [];
 
         foreach ($this->childNodes as $node) {
@@ -53,12 +69,12 @@ class RichText {
             $object['text']['content'] = $this->getTextContent($node);
 
             // If `$object['text']['content']` length is more than 2000 characters, split it into multiple objects.
-            if (strlen($object['text']['content']) > 2000) {
+            if (mb_strlen($object['text']['content']) > 2000) {
                 $content = $object['text']['content'];
 
-                while (strlen($content) > 2000) {
-                    $object['text']['content'] = substr($content, 0, 2000);
-                    $content = substr($content, 2000);
+                while (mb_strlen($content) > 2000) {
+                    $object['text']['content'] = mb_substr($content, 0, 2000);
+                    $content = mb_substr($content, 2000);
 
                     $objects[] = $object;
                     $object = $this->defaultObject();
@@ -74,11 +90,17 @@ class RichText {
             }
 
             // If `$object['text']['link']['url']` length is more than 2000 characters, set a `null` value.
-            if (is_array($object['text']['link']) && strlen($object['text']['link']['url']) > 2000) {
+            if (is_array($object['text']['link']) && mb_strlen($object['text']['link']['url']) > 2000) {
                 $object['text']['link'] = null;
             }
 
-            $object['annotations'] = array_merge($object['annotations'], $this->getAnnotations($node));
+            $annotations = $this->getAnnotations($node);
+            $object['annotations'] = array_merge($object['annotations'], $annotations);
+
+            // Set color for code annotations
+            if (isset($annotations['code']) && $annotations['code']) {
+                $object['annotations']['color'] = 'red';
+            }
 
             $objects[] = $object;
         }
@@ -91,10 +113,11 @@ class RichText {
      *
      * @since 1.0.0
      *
-     * @param Node $node The node.
+     * @param  Node  $node  The node.
      * @return string The text content.
      */
-    protected function getTextContent(Node $node): string {
+    private function getTextContent(Node $node): string
+    {
         if ($node instanceof StringContainerInterface) {
             return $node->getLiteral();
         }
@@ -117,10 +140,11 @@ class RichText {
      *
      * @since 1.0.0
      *
-     * @param Node $node The node.
+     * @param  Node  $node  The node.
      * @return string The link.
      */
-    protected function getLink(Node $node): string {
+    private function getLink(Node $node): string
+    {
         if ($node instanceof AbstractWebResource) {
             return $node->getUrl();
         }
@@ -144,10 +168,11 @@ class RichText {
      *
      * @since 1.0.0
      *
-     * @param Node $node The node.
+     * @param  Node  $node  The node.
      * @return array The annotations.
      */
-    protected function getAnnotations(Node $node): array {
+    private function getAnnotations(Node $node): array
+    {
         $annotations = [];
 
         // If `$node` is a strong node, set bold annotation to true.
@@ -165,7 +190,7 @@ class RichText {
             $annotations['strikethrough'] = true;
         }
 
-        // If `$node` is a strikethrough node, set strikethrough annotation to true.
+        // If `$node` is a code node, set code annotation to true.
         if ($node instanceof Code) {
             $annotations['code'] = true;
         }
@@ -197,7 +222,8 @@ class RichText {
      *
      * @return array The default object.
      */
-    protected function defaultObject(): array {
+    private function defaultObject(): array
+    {
         return [
             'type' => 'text',
             'text' => [
@@ -213,16 +239,5 @@ class RichText {
                 'color' => 'default',
             ],
         ];
-    }
-
-    /**
-     * Convert the rich text to an array.
-     *
-     * @since 1.0.0
-     *
-     * @return array The rich text.
-     */
-    public function toArray(): array {
-        return !empty($this->childNodes) ? $this->objects() : [];
     }
 }

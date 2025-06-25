@@ -1,28 +1,49 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RoelMR\MarkdownToNotionBlocks\Converter;
 
 use League\CommonMark\Node\Block\Document;
+use League\CommonMark\Node\Node;
 use League\CommonMark\Renderer\DocumentRendererInterface;
 use ReflectionClass;
 use ReflectionException;
+use RoelMR\MarkdownToNotionBlocks\NotionBlocks\Image;
 use RoelMR\MarkdownToNotionBlocks\Objects\NotionBlock;
 
-class NotionBlocksRenderer implements DocumentRendererInterface {
+final class NotionBlocksRenderer implements DocumentRendererInterface
+{
+    private MarkdownImageProcessor $imageProcessor;
+
+    public function __construct()
+    {
+        $this->imageProcessor = new MarkdownImageProcessor;
+    }
+
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      *
      * @return NotionRenderedContent The rendered content.
+     *
      * @throws ReflectionException
      */
-    public function renderDocument(Document $document): NotionRenderedContent {
-        $json = array();
+    public function renderDocument(Document $document): NotionRenderedContent
+    {
+        $json = [];
 
         foreach ($document->children() as $node) {
+            // Check for images within this node first (including links that are actually images)
+            $images = $this->imageProcessor->extractImages($node);
+            foreach ($images as $image) {
+                $imageBlock = new Image($image);
+                $json[] = $imageBlock->object();
+            }
+
             $shortNameClass = (new ReflectionClass($node))->getShortName();
 
             // Run the block renderers dynamically.
-            $class = 'RoelMR\\MarkdownToNotionBlocks\\NotionBlocks\\' . $shortNameClass;
+            $class = 'RoelMR\\MarkdownToNotionBlocks\\NotionBlocks\\'.$shortNameClass;
 
             if (!class_exists($class)) {
                 continue;
@@ -39,7 +60,6 @@ class NotionBlocksRenderer implements DocumentRendererInterface {
              * The Notion API only accepts 100 rich text objects per block.
              *
              * @since 1.2.0
-             *
              * @see https://developers.notion.com/reference/request-limits#limits-for-property-values
              */
             if (isset($object[$type]['rich_text']) && count($object[$type]['rich_text']) > 100) {
@@ -53,6 +73,11 @@ class NotionBlocksRenderer implements DocumentRendererInterface {
                 }
 
                 $object[$type]['rich_text'] = $richText;
+            }
+
+            // Skip paragraphs that only contain images (we've already processed them above)
+            if ($shortNameClass === 'Paragraph' && $this->imageProcessor->containsOnlyImages($node)) {
+                continue;
             }
 
             $json[] = $object;
@@ -97,15 +122,17 @@ class NotionBlocksRenderer implements DocumentRendererInterface {
      *
      * @since 1.0.0
      *
-     * @param array $array Array to flatten.
+     * @param  array  $array  Array to flatten.
      * @return array Flattened array.
      */
-    protected function flattenSpecificArray(array $array): array {
+    private function flattenSpecificArray(array $array): array
+    {
         $result = [];
 
         foreach ($array as $element) {
             if (!is_array($element[0] ?? null)) {
                 $result[] = $element;
+
                 continue;
             }
 

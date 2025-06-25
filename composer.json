@@ -23,12 +23,13 @@
     ],
     "require": {
         "php": "^8.0",
-        "league/commonmark": "^2.5",
-        "incenteev/emoji-pattern": "^1.3"
+        "league/commonmark": "^2.7",
+        "incenteev/emoji-pattern": "^v1.4"
     },
     "require-dev": {
-        "pestphp/pest": "^1.23",
-        "phpstan/phpstan": "^1.12"
+        "pestphp/pest": "^v3.8.2",
+        "phpstan/phpstan": "^1.12",
+        "laravel/pint": "^1.22"
     },
     "scripts": {
         "test": "vendor/bin/pest"

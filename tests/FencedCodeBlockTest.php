@@ -1,7 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 test('a fenced code has the expected output', function () {
-    $markdown = <<<MD
+    $markdown = <<<'MD'
     ```php
     echo 'Hello, World!';
     ```
@@ -19,14 +21,6 @@ test('a fenced code has the expected output', function () {
                         'content' => "echo 'Hello, World!';",
                         'link' => null,
                     ],
-                    'annotations' => [
-                        'bold' => false,
-                        'italic' => false,
-                        'strikethrough' => false,
-                        'underline' => false,
-                        'code' => false,
-                        'color' => 'default',
-                    ],
                 ],
             ],
             'language' => 'php',
@@ -37,7 +31,7 @@ test('a fenced code has the expected output', function () {
 });
 
 test('a fenced code has an invalid language', function () {
-    $markdown = <<<MD
+    $markdown = <<<'MD'
     ```invalid
     echo 'Hello, World!';
     ```
@@ -54,14 +48,6 @@ test('a fenced code has an invalid language', function () {
                     'text' => [
                         'content' => "echo 'Hello, World!';",
                         'link' => null,
-                    ],
-                    'annotations' => [
-                        'bold' => false,
-                        'italic' => false,
-                        'strikethrough' => false,
-                        'underline' => false,
-                        'code' => false,
-                        'color' => 'default',
                     ],
                 ],
             ],
