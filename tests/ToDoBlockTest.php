@@ -1,7 +1,7 @@
 <?php
 
 test('a to do list has the expected output', function () {
-    $markdown = <<<MD
+    $markdown = <<<'MD'
     - [ ] Task 1
     - [ ] Task 2
     MD;
@@ -63,7 +63,7 @@ test('a to do list has the expected output', function () {
 });
 
 test('a to do list with annotations', function () {
-    $markdown = <<<MD
+    $markdown = <<<'MD'
     - [ ] Task **1**
     - [ ] Task *2*
     MD;
@@ -155,7 +155,7 @@ test('a to do list with annotations', function () {
 });
 
 test('a to do list with link', function () {
-    $markdown = <<<MD
+    $markdown = <<<'MD'
     - [ ] Task 1
     - [ ] Task [2](https://commonmark.thephpleague.com/)
     MD;

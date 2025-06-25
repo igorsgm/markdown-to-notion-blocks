@@ -1,7 +1,7 @@
 <?php
 
 test('a heading level one has the expected output', function () {
-    $markdown = <<<MD
+    $markdown = <<<'MD'
     # My main heading
     MD;
 
@@ -35,7 +35,7 @@ test('a heading level one has the expected output', function () {
 });
 
 test('a heading level two has the expected output', function () {
-    $markdown = <<<MD
+    $markdown = <<<'MD'
     ## My main heading
     MD;
 
@@ -69,7 +69,7 @@ test('a heading level two has the expected output', function () {
 });
 
 test('a heading level 4 or more is transformed to level 3', function () {
-    $markdown = <<<MD
+    $markdown = <<<'MD'
     #### My main heading
     MD;
 

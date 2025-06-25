@@ -11,8 +11,10 @@ use League\CommonMark\Parser\MarkdownParserInterface;
 use League\CommonMark\Renderer\DocumentRendererInterface;
 use ReflectionException;
 
-class MarkdownToNotionBlocksConverter implements ConverterInterface {
+class MarkdownToNotionBlocksConverter implements ConverterInterface
+{
     private MarkdownParserInterface $parser;
+
     private DocumentRendererInterface $renderer;
 
     /**
@@ -20,11 +22,12 @@ class MarkdownToNotionBlocksConverter implements ConverterInterface {
      *
      * @since 1.0.0
      *
-     * @param EnvironmentInterface $environment The CommonMark environment.
+     * @param  EnvironmentInterface  $environment  The CommonMark environment.
      */
-    public function __construct(EnvironmentInterface $environment) {
+    public function __construct(EnvironmentInterface $environment)
+    {
         $this->parser = new MarkdownParser($environment);
-        $this->renderer = new NotionBlocksRenderer();
+        $this->renderer = new NotionBlocksRenderer;
     }
 
     /**
@@ -32,12 +35,14 @@ class MarkdownToNotionBlocksConverter implements ConverterInterface {
      *
      * @since 1.0.0
      *
-     * @param string $input Markdown content.
+     * @param  string  $input  Markdown content.
      * @return RenderedContentInterface The Notion blocks from parsed markdown.
+     *
      * @throws CommonMarkException
      * @throws ReflectionException
      */
-    public function convert(string $input): RenderedContentInterface {
+    public function convert(string $input): RenderedContentInterface
+    {
         return $this->renderer->renderDocument($this->parser->parse($input));
     }
 }

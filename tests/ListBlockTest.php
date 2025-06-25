@@ -1,7 +1,7 @@
 <?php
 
 test('a bulleted list has the expected output', function () {
-    $markdown = <<<MD
+    $markdown = <<<'MD'
     - List 1
     - List 2
     MD;
@@ -61,7 +61,7 @@ test('a bulleted list has the expected output', function () {
 });
 
 test('an ordered list has the expected output', function () {
-    $markdown = <<<MD
+    $markdown = <<<'MD'
     1. Item 1
     2. Item 2
     MD;
@@ -121,7 +121,7 @@ test('an ordered list has the expected output', function () {
 });
 
 test('a list with annotations', function () {
-    $markdown = <<<MD
+    $markdown = <<<'MD'
     - List **1**
     - List *2*
     MD;

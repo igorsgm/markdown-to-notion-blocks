@@ -7,7 +7,8 @@ use League\CommonMark\Node\Inline\AbstractStringContainer;
 use League\CommonMark\Node\Node;
 use RoelMR\MarkdownToNotionBlocks\Objects\NotionBlock;
 
-class BlockQuote extends NotionBlock {
+class BlockQuote extends NotionBlock
+{
     /**
      * The real node.
      *
@@ -25,28 +26,30 @@ class BlockQuote extends NotionBlock {
      *
      * @since 1.0.0
      *
-     * @param CommonMarkBlockQuote $node The block quote node.
+     * @param  CommonMarkBlockQuote  $node  The block quote node.
      *
      * @see https://developers.notion.com/reference/block#quote
      */
-    public function __construct(public CommonMarkBlockQuote $node) {
+    public function __construct(public CommonMarkBlockQuote $node)
+    {
         $this->realNode = !$node->hasChildren() ? false : $node->children()[0];
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function object(): array {
+    public function object(): array
+    {
         return $this->isCallout()
             ? (new Callout($this->node))->object()
-            : array(
+            : [
                 'object' => 'block',
                 'type' => 'quote',
-                'quote' => array(
+                'quote' => [
                     'rich_text' => $this->richText($this->realNode),
                     'color' => $this->color(),
-                ),
-            );
+                ],
+            ];
     }
 
     /**
@@ -56,7 +59,8 @@ class BlockQuote extends NotionBlock {
      *
      * @return string The color of the block.
      */
-    protected function color(): string {
+    protected function color(): string
+    {
         return 'default';
     }
 
@@ -70,7 +74,8 @@ class BlockQuote extends NotionBlock {
      *
      * @return bool True if the block quote is a callout, false otherwise.
      */
-    protected function isCallout(): bool {
+    protected function isCallout(): bool
+    {
         if (!$this->realNode) {
             return false;
         }
@@ -94,6 +99,6 @@ class BlockQuote extends NotionBlock {
         $textContent = strtolower($firstChild->getLiteral());
         $callout = array_filter($types, fn ($type) => str_contains($textContent, strtolower($type)));
 
-        return ! empty( $callout );
+        return !empty($callout);
     }
 }

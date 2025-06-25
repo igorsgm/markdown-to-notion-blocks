@@ -1,7 +1,7 @@
 <?php
 
 test('a fenced code has the expected output', function () {
-    $markdown = <<<MD
+    $markdown = <<<'MD'
     ```php
     echo 'Hello, World!';
     ```
@@ -37,7 +37,7 @@ test('a fenced code has the expected output', function () {
 });
 
 test('a fenced code has an invalid language', function () {
-    $markdown = <<<MD
+    $markdown = <<<'MD'
     ```invalid
     echo 'Hello, World!';
     ```

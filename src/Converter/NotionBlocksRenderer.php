@@ -8,21 +8,24 @@ use ReflectionClass;
 use ReflectionException;
 use RoelMR\MarkdownToNotionBlocks\Objects\NotionBlock;
 
-class NotionBlocksRenderer implements DocumentRendererInterface {
+class NotionBlocksRenderer implements DocumentRendererInterface
+{
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      *
      * @return NotionRenderedContent The rendered content.
+     *
      * @throws ReflectionException
      */
-    public function renderDocument(Document $document): NotionRenderedContent {
-        $json = array();
+    public function renderDocument(Document $document): NotionRenderedContent
+    {
+        $json = [];
 
         foreach ($document->children() as $node) {
             $shortNameClass = (new ReflectionClass($node))->getShortName();
 
             // Run the block renderers dynamically.
-            $class = 'RoelMR\\MarkdownToNotionBlocks\\NotionBlocks\\' . $shortNameClass;
+            $class = 'RoelMR\\MarkdownToNotionBlocks\\NotionBlocks\\'.$shortNameClass;
 
             if (!class_exists($class)) {
                 continue;
@@ -39,7 +42,6 @@ class NotionBlocksRenderer implements DocumentRendererInterface {
              * The Notion API only accepts 100 rich text objects per block.
              *
              * @since 1.2.0
-             *
              * @see https://developers.notion.com/reference/request-limits#limits-for-property-values
              */
             if (isset($object[$type]['rich_text']) && count($object[$type]['rich_text']) > 100) {
@@ -97,15 +99,17 @@ class NotionBlocksRenderer implements DocumentRendererInterface {
      *
      * @since 1.0.0
      *
-     * @param array $array Array to flatten.
+     * @param  array  $array  Array to flatten.
      * @return array Flattened array.
      */
-    protected function flattenSpecificArray(array $array): array {
+    protected function flattenSpecificArray(array $array): array
+    {
         $result = [];
 
         foreach ($array as $element) {
             if (!is_array($element[0] ?? null)) {
                 $result[] = $element;
+
                 continue;
             }
 

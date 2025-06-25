@@ -11,7 +11,8 @@ use League\CommonMark\Node\Inline\Newline;
 use League\CommonMark\Node\Node;
 use League\CommonMark\Node\StringContainerInterface;
 
-class RichText {
+class RichText
+{
     /**
      * The children nodes.
      *
@@ -26,11 +27,12 @@ class RichText {
      *
      * @since 1.0.0
      *
-     * @param Node $node The node.
+     * @param  Node  $node  The node.
      *
      * @see https://developers.notion.com/reference/rich-text
      */
-    public function __construct(public Node $node) {
+    public function __construct(public Node $node)
+    {
         $this->childNodes = $this->node->hasChildren() ? $this->node->children() : [$this->node];
     }
 
@@ -39,12 +41,12 @@ class RichText {
      * These are the objects that a rich text can have: text and annotations.
      *
      * @since 1.0.0
-     *
      * @see https://developers.notion.com/reference/rich-text
      *
      * @return array The rich text objects.
      */
-    protected function objects(): array {
+    protected function objects(): array
+    {
         $objects = [];
 
         foreach ($this->childNodes as $node) {
@@ -91,10 +93,11 @@ class RichText {
      *
      * @since 1.0.0
      *
-     * @param Node $node The node.
+     * @param  Node  $node  The node.
      * @return string The text content.
      */
-    protected function getTextContent(Node $node): string {
+    protected function getTextContent(Node $node): string
+    {
         if ($node instanceof StringContainerInterface) {
             return $node->getLiteral();
         }
@@ -117,10 +120,11 @@ class RichText {
      *
      * @since 1.0.0
      *
-     * @param Node $node The node.
+     * @param  Node  $node  The node.
      * @return string The link.
      */
-    protected function getLink(Node $node): string {
+    protected function getLink(Node $node): string
+    {
         if ($node instanceof AbstractWebResource) {
             return $node->getUrl();
         }
@@ -144,10 +148,11 @@ class RichText {
      *
      * @since 1.0.0
      *
-     * @param Node $node The node.
+     * @param  Node  $node  The node.
      * @return array The annotations.
      */
-    protected function getAnnotations(Node $node): array {
+    protected function getAnnotations(Node $node): array
+    {
         $annotations = [];
 
         // If `$node` is a strong node, set bold annotation to true.
@@ -197,7 +202,8 @@ class RichText {
      *
      * @return array The default object.
      */
-    protected function defaultObject(): array {
+    protected function defaultObject(): array
+    {
         return [
             'type' => 'text',
             'text' => [
@@ -222,7 +228,8 @@ class RichText {
      *
      * @return array The rich text.
      */
-    public function toArray(): array {
+    public function toArray(): array
+    {
         return !empty($this->childNodes) ? $this->objects() : [];
     }
 }

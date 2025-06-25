@@ -5,7 +5,8 @@ namespace RoelMR\MarkdownToNotionBlocks\NotionBlocks;
 use League\CommonMark\Extension\CommonMark\Node\Block\Heading as CommonMarkHeading;
 use RoelMR\MarkdownToNotionBlocks\Objects\NotionBlock;
 
-class Heading extends NotionBlock {
+class Heading extends NotionBlock
+{
     /**
      * The level of the heading.
      *
@@ -20,28 +21,30 @@ class Heading extends NotionBlock {
      *
      * @since 1.0.0
      *
-     * @param CommonMarkHeading $node The heading node.
+     * @param  CommonMarkHeading  $node  The heading node.
      */
-    public function __construct(public CommonMarkHeading $node) {
+    public function __construct(public CommonMarkHeading $node)
+    {
         $level = $this->node->getLevel();
         $this->level = $level >= 4 ? 3 : $level; // Notion only supports up to h3.
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function object(): array {
+    public function object(): array
+    {
         $type = "heading_$this->level";
 
-        return array(
+        return [
             'object' => 'block',
             'type' => $type,
-            $type => array(
+            $type => [
                 'rich_text' => $this->richText($this->node),
                 'color' => $this->color(),
                 'is_toggleable' => $this->isToggleable(),
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -51,7 +54,8 @@ class Heading extends NotionBlock {
      *
      * @return string The color of the block.
      */
-    protected function color(): string {
+    protected function color(): string
+    {
         return 'default';
     }
 
@@ -62,7 +66,8 @@ class Heading extends NotionBlock {
      *
      * @return bool Whether the block is toggleable or not.
      */
-    protected function isToggleable(): bool {
+    protected function isToggleable(): bool
+    {
         return false;
     }
 }
