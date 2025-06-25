@@ -94,7 +94,13 @@ final class RichText
                 $object['text']['link'] = null;
             }
 
-            $object['annotations'] = array_merge($object['annotations'], $this->getAnnotations($node));
+            $annotations = $this->getAnnotations($node);
+            $object['annotations'] = array_merge($object['annotations'], $annotations);
+
+            // Set color for code annotations
+            if (isset($annotations['code']) && $annotations['code']) {
+                $object['annotations']['color'] = 'red';
+            }
 
             $objects[] = $object;
         }
@@ -184,7 +190,7 @@ final class RichText
             $annotations['strikethrough'] = true;
         }
 
-        // If `$node` is a strikethrough node, set strikethrough annotation to true.
+        // If `$node` is a code node, set code annotation to true.
         if ($node instanceof Code) {
             $annotations['code'] = true;
         }

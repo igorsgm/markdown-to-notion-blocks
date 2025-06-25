@@ -54,6 +54,8 @@ final class FencedCode extends NotionBlock
         foreach ($richText as $key => $object) {
             if ($object['type'] === 'text') {
                 $richText[$key]['text']['content'] = mb_trim($object['text']['content']);
+                // code blocks should not have annotations otherwise it will not be syntax highlighted correctly
+                unset($richText[$key]['annotations']);
             }
         }
 

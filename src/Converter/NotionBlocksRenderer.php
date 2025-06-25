@@ -5,13 +5,22 @@ declare(strict_types=1);
 namespace RoelMR\MarkdownToNotionBlocks\Converter;
 
 use League\CommonMark\Node\Block\Document;
+use League\CommonMark\Node\Node;
 use League\CommonMark\Renderer\DocumentRendererInterface;
 use ReflectionClass;
 use ReflectionException;
+use RoelMR\MarkdownToNotionBlocks\NotionBlocks\Image;
 use RoelMR\MarkdownToNotionBlocks\Objects\NotionBlock;
 
 final class NotionBlocksRenderer implements DocumentRendererInterface
 {
+    private MarkdownImageProcessor $imageProcessor;
+
+    public function __construct()
+    {
+        $this->imageProcessor = new MarkdownImageProcessor;
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -24,6 +33,13 @@ final class NotionBlocksRenderer implements DocumentRendererInterface
         $json = [];
 
         foreach ($document->children() as $node) {
+            // Check for images within this node first (including links that are actually images)
+            $images = $this->imageProcessor->extractImages($node);
+            foreach ($images as $image) {
+                $imageBlock = new Image($image);
+                $json[] = $imageBlock->object();
+            }
+
             $shortNameClass = (new ReflectionClass($node))->getShortName();
 
             // Run the block renderers dynamically.
@@ -57,6 +73,11 @@ final class NotionBlocksRenderer implements DocumentRendererInterface
                 }
 
                 $object[$type]['rich_text'] = $richText;
+            }
+
+            // Skip paragraphs that only contain images (we've already processed them above)
+            if ($shortNameClass === 'Paragraph' && $this->imageProcessor->containsOnlyImages($node)) {
+                continue;
             }
 
             $json[] = $object;

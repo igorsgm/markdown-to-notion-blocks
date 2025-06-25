@@ -61,8 +61,6 @@ final class MarkdownToNotionBlocks
         $environment->addExtension(new CommonMarkCoreExtension);
         $environment->addExtension(new GithubFlavoredMarkdownExtension);
 
-        $converter = new MarkdownToNotionBlocksConverter($environment);
-
-        return $converter->convert($markdown);
+        return (new MarkdownToNotionBlocksConverter($environment))->convert($markdown);
     }
 }

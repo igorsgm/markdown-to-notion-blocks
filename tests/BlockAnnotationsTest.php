@@ -102,7 +102,7 @@ test('a paragraph has code annotation', function () {
                         'strikethrough' => false,
                         'underline' => false,
                         'code' => true,
-                        'color' => 'default',
+                        'color' => 'red',
                     ],
                 ],
                 [
