@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('a block quote has the expected output', function () {
     $markdown = <<<'MD'
     > A simple block quote.

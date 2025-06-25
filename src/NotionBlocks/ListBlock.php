@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RoelMR\MarkdownToNotionBlocks\NotionBlocks;
 
 use League\CommonMark\Extension\CommonMark\Node\Block\ListBlock as CommonMarkListBlock;
@@ -7,7 +9,7 @@ use League\CommonMark\Extension\TaskList\TaskListItemMarker;
 use League\CommonMark\Node\Node;
 use RoelMR\MarkdownToNotionBlocks\Objects\NotionBlock;
 
-class ListBlock extends NotionBlock
+final class ListBlock extends NotionBlock
 {
     /**
      * Paragraph constructor.

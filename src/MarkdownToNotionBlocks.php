@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RoelMR\MarkdownToNotionBlocks;
 
 use League\CommonMark\Environment\Environment;
@@ -10,7 +12,7 @@ use League\CommonMark\Output\RenderedContentInterface;
 use ReflectionException;
 use RoelMR\MarkdownToNotionBlocks\Converter\MarkdownToNotionBlocksConverter;
 
-class MarkdownToNotionBlocks
+final class MarkdownToNotionBlocks
 {
     /**
      * Convert markdown to Notion blocks in JSON format.

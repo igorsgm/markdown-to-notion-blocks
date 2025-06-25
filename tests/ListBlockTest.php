@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('a bulleted list has the expected output', function () {
     $markdown = <<<'MD'
     - List 1

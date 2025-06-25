@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use RoelMR\MarkdownToNotionBlocks\MarkdownToNotionBlocks;
 
 test('empty content returns an empty response', function () {

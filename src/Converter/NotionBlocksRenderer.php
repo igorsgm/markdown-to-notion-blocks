@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RoelMR\MarkdownToNotionBlocks\Converter;
 
 use League\CommonMark\Node\Block\Document;
@@ -8,7 +10,7 @@ use ReflectionClass;
 use ReflectionException;
 use RoelMR\MarkdownToNotionBlocks\Objects\NotionBlock;
 
-class NotionBlocksRenderer implements DocumentRendererInterface
+final class NotionBlocksRenderer implements DocumentRendererInterface
 {
     /**
      * {@inheritDoc}
@@ -102,7 +104,7 @@ class NotionBlocksRenderer implements DocumentRendererInterface
      * @param  array  $array  Array to flatten.
      * @return array Flattened array.
      */
-    protected function flattenSpecificArray(array $array): array
+    private function flattenSpecificArray(array $array): array
     {
         $result = [];
 

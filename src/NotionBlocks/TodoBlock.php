@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RoelMR\MarkdownToNotionBlocks\NotionBlocks;
 
 use League\CommonMark\Extension\CommonMark\Node\Block\ListItem;
@@ -7,7 +9,7 @@ use League\CommonMark\Extension\TaskList\TaskListItemMarker;
 use League\CommonMark\Node\Inline\Text;
 use RoelMR\MarkdownToNotionBlocks\Objects\NotionBlock;
 
-class TodoBlock extends NotionBlock
+final class TodoBlock extends NotionBlock
 {
     /**
      * Paragraph constructor.
@@ -51,7 +53,7 @@ class TodoBlock extends NotionBlock
          * @var Text $rawText
          */
         $rawText = $this->node->children()[0]?->children()[1];
-        $rawText->setLiteral(trim($rawText->getLiteral()));
+        $rawText->setLiteral(mb_trim($rawText->getLiteral()));
 
         // Detach the `TaskListItemMarker` node from the list item to avoid empty rich text results.
         $taskListItem->detach();

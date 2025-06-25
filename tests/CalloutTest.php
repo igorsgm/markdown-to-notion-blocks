@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('a simple callout', function () {
     $markdown = <<<'MD'
     > [!NOTE] This is a callout.

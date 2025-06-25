@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use League\CommonMark\Exception\CommonMarkException;
 use League\Config\Exception\ConfigurationExceptionInterface;
 use RoelMR\MarkdownToNotionBlocks\MarkdownToNotionBlocks;

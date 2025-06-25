@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('a heading level one has the expected output', function () {
     $markdown = <<<'MD'
     # My main heading

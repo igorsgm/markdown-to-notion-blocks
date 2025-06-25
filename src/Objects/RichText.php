@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RoelMR\MarkdownToNotionBlocks\Objects;
 
 use League\CommonMark\Extension\CommonMark\Node\Inline\AbstractWebResource;
@@ -11,7 +13,7 @@ use League\CommonMark\Node\Inline\Newline;
 use League\CommonMark\Node\Node;
 use League\CommonMark\Node\StringContainerInterface;
 
-class RichText
+final class RichText
 {
     /**
      * The children nodes.
@@ -20,7 +22,7 @@ class RichText
      *
      * @var Node[] The children nodes.
      */
-    protected array $childNodes = [];
+    private array $childNodes = [];
 
     /**
      * RichText constructor.
@@ -37,6 +39,18 @@ class RichText
     }
 
     /**
+     * Convert the rich text to an array.
+     *
+     * @since 1.0.0
+     *
+     * @return array The rich text.
+     */
+    public function toArray(): array
+    {
+        return !empty($this->childNodes) ? $this->objects() : [];
+    }
+
+    /**
      * Get the rich text objects.
      * These are the objects that a rich text can have: text and annotations.
      *
@@ -45,7 +59,7 @@ class RichText
      *
      * @return array The rich text objects.
      */
-    protected function objects(): array
+    private function objects(): array
     {
         $objects = [];
 
@@ -55,12 +69,12 @@ class RichText
             $object['text']['content'] = $this->getTextContent($node);
 
             // If `$object['text']['content']` length is more than 2000 characters, split it into multiple objects.
-            if (strlen($object['text']['content']) > 2000) {
+            if (mb_strlen($object['text']['content']) > 2000) {
                 $content = $object['text']['content'];
 
-                while (strlen($content) > 2000) {
-                    $object['text']['content'] = substr($content, 0, 2000);
-                    $content = substr($content, 2000);
+                while (mb_strlen($content) > 2000) {
+                    $object['text']['content'] = mb_substr($content, 0, 2000);
+                    $content = mb_substr($content, 2000);
 
                     $objects[] = $object;
                     $object = $this->defaultObject();
@@ -76,7 +90,7 @@ class RichText
             }
 
             // If `$object['text']['link']['url']` length is more than 2000 characters, set a `null` value.
-            if (is_array($object['text']['link']) && strlen($object['text']['link']['url']) > 2000) {
+            if (is_array($object['text']['link']) && mb_strlen($object['text']['link']['url']) > 2000) {
                 $object['text']['link'] = null;
             }
 
@@ -96,7 +110,7 @@ class RichText
      * @param  Node  $node  The node.
      * @return string The text content.
      */
-    protected function getTextContent(Node $node): string
+    private function getTextContent(Node $node): string
     {
         if ($node instanceof StringContainerInterface) {
             return $node->getLiteral();
@@ -123,7 +137,7 @@ class RichText
      * @param  Node  $node  The node.
      * @return string The link.
      */
-    protected function getLink(Node $node): string
+    private function getLink(Node $node): string
     {
         if ($node instanceof AbstractWebResource) {
             return $node->getUrl();
@@ -151,7 +165,7 @@ class RichText
      * @param  Node  $node  The node.
      * @return array The annotations.
      */
-    protected function getAnnotations(Node $node): array
+    private function getAnnotations(Node $node): array
     {
         $annotations = [];
 
@@ -202,7 +216,7 @@ class RichText
      *
      * @return array The default object.
      */
-    protected function defaultObject(): array
+    private function defaultObject(): array
     {
         return [
             'type' => 'text',
@@ -219,17 +233,5 @@ class RichText
                 'color' => 'default',
             ],
         ];
-    }
-
-    /**
-     * Convert the rich text to an array.
-     *
-     * @since 1.0.0
-     *
-     * @return array The rich text.
-     */
-    public function toArray(): array
-    {
-        return !empty($this->childNodes) ? $this->objects() : [];
     }
 }

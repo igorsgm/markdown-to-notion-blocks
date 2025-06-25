@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RoelMR\MarkdownToNotionBlocks\NotionBlocks;
 
 use League\CommonMark\Extension\CommonMark\Node\Block\BlockQuote as CommonMarkBlockQuote;
@@ -7,7 +9,7 @@ use League\CommonMark\Node\Inline\AbstractStringContainer;
 use League\CommonMark\Node\Node;
 use RoelMR\MarkdownToNotionBlocks\Objects\NotionBlock;
 
-class BlockQuote extends NotionBlock
+final class BlockQuote extends NotionBlock
 {
     /**
      * The real node.
@@ -96,8 +98,8 @@ class BlockQuote extends NotionBlock
             return false;
         }
 
-        $textContent = strtolower($firstChild->getLiteral());
-        $callout = array_filter($types, fn ($type) => str_contains($textContent, strtolower($type)));
+        $textContent = mb_strtolower($firstChild->getLiteral());
+        $callout = array_filter($types, fn ($type) => str_contains($textContent, mb_strtolower($type)));
 
         return !empty($callout);
     }

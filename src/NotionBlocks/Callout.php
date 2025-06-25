@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RoelMR\MarkdownToNotionBlocks\NotionBlocks;
 
 use Incenteev\EmojiPattern\EmojiPattern;
@@ -9,7 +11,7 @@ use League\CommonMark\Node\Node;
 use RoelMR\MarkdownToNotionBlocks\Objects\NotionBlock;
 use RoelMR\MarkdownToNotionBlocks\Objects\RichText;
 
-class Callout extends NotionBlock
+final class Callout extends NotionBlock
 {
     /**
      * The real node.
@@ -143,7 +145,7 @@ class Callout extends NotionBlock
             return;
         }
 
-        $textContent = trim($firstChild->getLiteral());
+        $textContent = mb_trim($firstChild->getLiteral());
         $pattern = '/\[!(\w+)](?:\s('.EmojiPattern::getEmojiPattern().'))?/mu';
 
         /**
@@ -162,7 +164,7 @@ class Callout extends NotionBlock
         $this->emoji = empty($matches) ? $this->emoji : $matches[2] ?? '';
 
         // We don't need the callout type and emoji in the text content anymore.
-        $textContent = trim(preg_replace($pattern, '', $textContent));
+        $textContent = mb_trim(preg_replace($pattern, '', $textContent));
 
         if ($textContent === '') {
             $firstChild->detach();

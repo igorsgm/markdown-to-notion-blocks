@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RoelMR\MarkdownToNotionBlocks\NotionBlocks;
 
 use League\CommonMark\Extension\CommonMark\Node\Block\FencedCode as CommonMarkFencedCode;
@@ -7,7 +9,7 @@ use League\CommonMark\Node\Node;
 use RoelMR\MarkdownToNotionBlocks\Objects\NotionBlock;
 use RoelMR\MarkdownToNotionBlocks\Objects\RichText;
 
-class FencedCode extends NotionBlock
+final class FencedCode extends NotionBlock
 {
     /**
      * Code constructor.
@@ -51,7 +53,7 @@ class FencedCode extends NotionBlock
          */
         foreach ($richText as $key => $object) {
             if ($object['type'] === 'text') {
-                $richText[$key]['text']['content'] = trim($object['text']['content']);
+                $richText[$key]['text']['content'] = mb_trim($object['text']['content']);
             }
         }
 

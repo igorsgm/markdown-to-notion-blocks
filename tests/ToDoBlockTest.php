@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('a to do list has the expected output', function () {
     $markdown = <<<'MD'
     - [ ] Task 1

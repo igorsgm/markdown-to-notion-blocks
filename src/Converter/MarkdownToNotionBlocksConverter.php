@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RoelMR\MarkdownToNotionBlocks\Converter;
 
 use League\CommonMark\ConverterInterface;
@@ -11,7 +13,7 @@ use League\CommonMark\Parser\MarkdownParserInterface;
 use League\CommonMark\Renderer\DocumentRendererInterface;
 use ReflectionException;
 
-class MarkdownToNotionBlocksConverter implements ConverterInterface
+final class MarkdownToNotionBlocksConverter implements ConverterInterface
 {
     private MarkdownParserInterface $parser;
 
