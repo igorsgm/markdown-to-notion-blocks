@@ -7,6 +7,7 @@ namespace RoelMR\MarkdownToNotionBlocks\NotionBlocks;
 use League\CommonMark\Extension\CommonMark\Node\Inline\Image as CommonMarkImage;
 use RoelMR\MarkdownToNotionBlocks\Objects\ImageLikeLink;
 use RoelMR\MarkdownToNotionBlocks\Objects\NotionBlock;
+use RoelMR\MarkdownToNotionBlocks\Validation\ImageValidator;
 
 final class Image extends NotionBlock
 {
@@ -28,6 +29,34 @@ final class Image extends NotionBlock
     {
         $url = $this->node->getUrl();
         $isExternalUrl = filter_var($url, FILTER_VALIDATE_URL) !== false;
+
+        // Validate image for Notion compatibility
+        if (!ImageValidator::isValidNotionImage($url)) {
+            // Return a paragraph block with the image URL as text for invalid images
+            return [
+                'object' => 'block',
+                'type' => 'paragraph',
+                'paragraph' => [
+                    'rich_text' => [
+                        [
+                            'type' => 'text',
+                            'text' => [
+                                'content' => '[Invalid image: '.$url.']',
+                                'link' => null,
+                            ],
+                            'annotations' => [
+                                'bold' => false,
+                                'italic' => true,
+                                'strikethrough' => false,
+                                'underline' => false,
+                                'code' => false,
+                                'color' => 'gray',
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+        }
 
         return [
             'object' => 'block',
