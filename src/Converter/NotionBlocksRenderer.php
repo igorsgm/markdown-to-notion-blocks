@@ -14,12 +14,9 @@ use RoelMR\MarkdownToNotionBlocks\Objects\NotionBlock;
 
 final class NotionBlocksRenderer implements DocumentRendererInterface
 {
-    private MarkdownImageProcessor $imageProcessor;
-
-    public function __construct()
-    {
-        $this->imageProcessor = new MarkdownImageProcessor;
-    }
+    public function __construct(
+        private readonly MarkdownImageProcessor $imageProcessor = new MarkdownImageProcessor(),
+    ) {}
 
     /**
      * {@inheritDoc}
@@ -52,6 +49,11 @@ final class NotionBlocksRenderer implements DocumentRendererInterface
             /* @var $class NotionBlock */
             $object = (new $class($node))->object();
 
+            // Skip paragraphs that only contain images (we've already processed them above)
+            if ($shortNameClass === 'Paragraph' && $this->imageProcessor->containsOnlyImages($node)) {
+                continue;
+            }
+
             $type = $object['type'] ?? '';
 
             /**
@@ -62,24 +64,22 @@ final class NotionBlocksRenderer implements DocumentRendererInterface
              * @since 1.2.0
              * @see https://developers.notion.com/reference/request-limits#limits-for-property-values
              */
-            if (isset($object[$type]['rich_text']) && count($object[$type]['rich_text']) > 100) {
-                $richText = $object[$type]['rich_text'];
+            if (!isset($object[$type]['rich_text']) || count($object[$type]['rich_text']) <= 100) {
+                $json[] = $object;
 
-                while (count($richText) > 100) {
-                    $object[$type]['rich_text'] = array_slice($richText, 0, 100);
-                    $json[] = $object;
-
-                    $richText = array_slice($richText, 100);
-                }
-
-                $object[$type]['rich_text'] = $richText;
-            }
-
-            // Skip paragraphs that only contain images (we've already processed them above)
-            if ($shortNameClass === 'Paragraph' && $this->imageProcessor->containsOnlyImages($node)) {
                 continue;
             }
 
+            $richText = $object[$type]['rich_text'];
+
+            while (count($richText) > 100) {
+                $object[$type]['rich_text'] = array_slice($richText, 0, 100);
+                $json[] = $object;
+
+                $richText = array_slice($richText, 100);
+            }
+
+            $object[$type]['rich_text'] = $richText;
             $json[] = $object;
         }
 

@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace RoelMR\MarkdownToNotionBlocks\NotionBlocks;
 
 use League\CommonMark\Extension\CommonMark\Node\Inline\Image as CommonMarkImage;
+use RoelMR\MarkdownToNotionBlocks\Enums\ImageType;
 use RoelMR\MarkdownToNotionBlocks\Objects\ImageLikeLink;
 use RoelMR\MarkdownToNotionBlocks\Objects\NotionBlock;
-use RoelMR\MarkdownToNotionBlocks\Validation\ImageValidator;
+use RoelMR\MarkdownToNotionBlocks\Validators\ImageValidator;
 
 final class Image extends NotionBlock
 {
+    private ImageValidator $validator;
+
     /**
      * Image constructor.
      *
@@ -20,7 +23,10 @@ final class Image extends NotionBlock
      *
      * @see https://developers.notion.com/reference/block#image
      */
-    public function __construct(public CommonMarkImage|ImageLikeLink $node) {}
+    public function __construct(public CommonMarkImage|ImageLikeLink $node)
+    {
+        $this->validator = new ImageValidator;
+    }
 
     /**
      * {@inheritDoc}
@@ -28,80 +34,29 @@ final class Image extends NotionBlock
     public function object(): array
     {
         $url = $this->node->getUrl();
-        $isExternalUrl = filter_var($url, FILTER_VALIDATE_URL) !== false;
 
-        // Validate image for Notion compatibility
-        if (!ImageValidator::isValidNotionImage($url)) {
-            // Return a paragraph block with the image URL as text for invalid images
-            return [
-                'object' => 'block',
-                'type' => 'paragraph',
-                'paragraph' => [
-                    'rich_text' => [
-                        [
-                            'type' => 'text',
-                            'text' => [
-                                'content' => '[Invalid image: '.$url.']',
-                                'link' => null,
-                            ],
-                            'annotations' => [
-                                'bold' => false,
-                                'italic' => true,
-                                'strikethrough' => false,
-                                'underline' => false,
-                                'code' => false,
-                                'color' => 'gray',
-                            ],
-                        ],
-                    ],
-                ],
-            ];
+        if (!$this->isValid()) {
+            return ImageType::INVALID->get($url);
         }
 
-        return [
-            'object' => 'block',
-            'type' => 'image',
-            'image' => [
-                'type' => $isExternalUrl ? 'external' : 'file',
-                $isExternalUrl ? 'external' : 'file' => [
-                    'url' => $url,
-                ],
-                'caption' => $this->caption(),
-            ],
-        ];
+        $title = $this->node->getTitle();
+
+        if ($this->validator->isExternalUrl($url)) {
+            return ImageType::EXTERNAL->get($url, $title);
+        }
+
+        return ImageType::FILE->get($url, $title);
     }
 
     /**
-     * Get the caption for the image.
+     * Check if the image is valid for Notion.
      *
      * @since 1.0.0
      *
-     * @return array The caption for the image.
+     * @return bool True if the image is valid, false otherwise.
      */
-    protected function caption(): array
+    private function isValid(): bool
     {
-        $title = $this->node->getTitle();
-
-        if (empty($title)) {
-            return [];
-        }
-
-        return [
-            [
-                'type' => 'text',
-                'text' => [
-                    'content' => $title,
-                    'link' => null,
-                ],
-                'annotations' => [
-                    'bold' => false,
-                    'italic' => false,
-                    'strikethrough' => false,
-                    'underline' => false,
-                    'code' => false,
-                    'color' => 'default',
-                ],
-            ],
-        ];
+        return $this->validator->isValidNotionImage($this->node->getUrl());
     }
 }

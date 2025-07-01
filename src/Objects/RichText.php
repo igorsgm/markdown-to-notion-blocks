@@ -39,6 +39,33 @@ final class RichText
     }
 
     /**
+     * Get the default object.
+     * The default object is a Notion object.
+     *
+     * @since 1.0.0
+     *
+     * @return array The default object.
+     */
+    public static function defaultObject(): array
+    {
+        return [
+            'type' => 'text',
+            'text' => [
+                'content' => '',
+                'link' => null,
+            ],
+            'annotations' => [
+                'bold' => false,
+                'italic' => false,
+                'strikethrough' => false,
+                'underline' => false,
+                'code' => false,
+                'color' => 'default',
+            ],
+        ];
+    }
+
+    /**
      * Convert the rich text to an array.
      *
      * @since 1.0.0
@@ -64,7 +91,7 @@ final class RichText
         $objects = [];
 
         foreach ($this->childNodes as $node) {
-            $object = $this->defaultObject();
+            $object = self::defaultObject();
 
             $object['text']['content'] = $this->getTextContent($node);
 
@@ -77,7 +104,7 @@ final class RichText
                     $content = mb_substr($content, 2000);
 
                     $objects[] = $object;
-                    $object = $this->defaultObject();
+                    $object = self::defaultObject();
                 }
 
                 $object['text']['content'] = $content;
@@ -212,32 +239,5 @@ final class RichText
         }
 
         return $annotations;
-    }
-
-    /**
-     * Get the default object.
-     * The default object is a Notion object.
-     *
-     * @since 1.0.0
-     *
-     * @return array The default object.
-     */
-    private function defaultObject(): array
-    {
-        return [
-            'type' => 'text',
-            'text' => [
-                'content' => '',
-                'link' => null,
-            ],
-            'annotations' => [
-                'bold' => false,
-                'italic' => false,
-                'strikethrough' => false,
-                'underline' => false,
-                'code' => false,
-                'color' => 'default',
-            ],
-        ];
     }
 }

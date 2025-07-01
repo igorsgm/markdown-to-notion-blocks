@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 use League\CommonMark\Extension\CommonMark\Node\Inline\Image as CommonMarkImage;
 use RoelMR\MarkdownToNotionBlocks\NotionBlocks\Image;
-use RoelMR\MarkdownToNotionBlocks\Validation\ImageValidator;
+use RoelMR\MarkdownToNotionBlocks\Validators\ImageValidator;
 
 test('ImageValidator validates supported image extensions', function () {
+    $validator = new ImageValidator;
     $validUrls = [
         'https://example.com/image.jpg',
         'https://example.com/image.jpeg',
@@ -20,11 +21,12 @@ test('ImageValidator validates supported image extensions', function () {
     ];
 
     foreach ($validUrls as $url) {
-        expect(ImageValidator::isValidNotionImage($url))->toBeTrue("URL $url should be valid");
+        expect($validator->isValidNotionImage($url))->toBeTrue("URL $url should be valid");
     }
 });
 
 test('ImageValidator rejects unsupported image extensions', function () {
+    $validator = new ImageValidator;
     $invalidUrls = [
         'https://example.com/image.webp',
         'https://example.com/image.avif',
@@ -36,27 +38,31 @@ test('ImageValidator rejects unsupported image extensions', function () {
     ];
 
     foreach ($invalidUrls as $url) {
-        expect(ImageValidator::isValidNotionImage($url))->toBeFalse("URL $url should be invalid");
+        expect($validator->isValidNotionImage($url))->toBeFalse("URL $url should be invalid");
     }
 });
 
 test('ImageValidator handles URLs with query parameters', function () {
-    expect(ImageValidator::isValidNotionImage('https://example.com/image.jpg?v=1&size=large'))->toBeTrue();
-    expect(ImageValidator::isValidNotionImage('https://example.com/image.webp?v=1&size=large'))->toBeFalse();
+    $validator = new ImageValidator;
+    expect($validator->isValidNotionImage('https://example.com/image.jpg?v=1&size=large'))->toBeTrue()
+        ->and($validator->isValidNotionImage('https://example.com/image.webp?v=1&size=large'))->toBeFalse();
 });
 
 test('ImageValidator handles URLs with fragments', function () {
-    expect(ImageValidator::isValidNotionImage('https://example.com/image.png#section'))->toBeTrue();
-    expect(ImageValidator::isValidNotionImage('https://example.com/image.webp#section'))->toBeFalse();
+    $validator = new ImageValidator;
+    expect($validator->isValidNotionImage('https://example.com/image.png#section'))->toBeTrue()
+        ->and($validator->isValidNotionImage('https://example.com/image.webp#section'))->toBeFalse();
 });
 
 test('ImageValidator handles case insensitive extensions', function () {
-    expect(ImageValidator::isValidNotionImage('https://example.com/image.JPG'))->toBeTrue();
-    expect(ImageValidator::isValidNotionImage('https://example.com/image.PNG'))->toBeTrue();
-    expect(ImageValidator::isValidNotionImage('https://example.com/image.WEBP'))->toBeFalse();
+    $validator = new ImageValidator;
+    expect($validator->isValidNotionImage('https://example.com/image.JPG'))->toBeTrue()
+        ->and($validator->isValidNotionImage('https://example.com/image.PNG'))->toBeTrue()
+        ->and($validator->isValidNotionImage('https://example.com/image.WEBP'))->toBeFalse();
 });
 
 test('ImageValidator allows non-external URLs', function () {
+    $validator = new ImageValidator;
     $nonExternalUrls = [
         './images/local.jpg',
         '../assets/image.png',
@@ -65,12 +71,13 @@ test('ImageValidator allows non-external URLs', function () {
     ];
 
     foreach ($nonExternalUrls as $url) {
-        expect(ImageValidator::isValidNotionImage($url))->toBeTrue("URL $url should be valid");
+        expect($validator->isValidNotionImage($url))->toBeTrue("URL $url should be valid");
     }
 });
 
 test('ImageValidator returns supported extensions list', function () {
-    $extensions = ImageValidator::getSupportedExtensions();
+    $validator = new ImageValidator;
+    $extensions = $validator->getSupportedExtensions();
 
     expect($extensions)->toBeArray()
         ->and($extensions)->toContain('jpg', 'jpeg', 'png', 'gif', 'svg', 'bmp', 'tif', 'tiff', 'heic');
@@ -105,12 +112,13 @@ test('Image block handles mixed valid and invalid images in markdown', function 
     $validResult = json_decode(convert($validMarkdown), true);
     $invalidResult = json_decode(convert($invalidMarkdown), true);
 
-    expect($validResult[0][0]['type'])->toBe('image');
-    expect($invalidResult[0][0]['type'])->toBe('paragraph');
-    expect($invalidResult[0][0]['paragraph']['rich_text'][0]['text']['content'])->toContain('[Invalid image:');
+    expect($validResult[0][0]['type'])->toBe('image')
+        ->and($invalidResult[0][0]['type'])->toBe('paragraph')
+        ->and($invalidResult[0][0]['paragraph']['rich_text'][0]['text']['content'])->toContain('[Invalid image:');
 });
 
 test('ImageValidator handles malformed URLs gracefully', function () {
+    $validator = new ImageValidator;
     $malformedUrls = [
         'not-a-url',
         'http://',
@@ -120,16 +128,18 @@ test('ImageValidator handles malformed URLs gracefully', function () {
     ];
 
     foreach ($malformedUrls as $url) {
-        expect(ImageValidator::isValidNotionImage($url))->toBeTrue("Malformed URL $url should be treated as non-external");
+        expect($validator->isValidNotionImage($url))->toBeTrue("Malformed URL $url should be treated as non-external");
     }
 });
 
 test('ImageValidator handles URLs without file extensions', function () {
-    expect(ImageValidator::isValidNotionImage('https://example.com/image'))->toBeFalse();
-    expect(ImageValidator::isValidNotionImage('https://example.com/path/to/image'))->toBeFalse();
+    $validator = new ImageValidator;
+    expect($validator->isValidNotionImage('https://example.com/image'))->toBeFalse()
+        ->and($validator->isValidNotionImage('https://example.com/path/to/image'))->toBeFalse();
 });
 
 test('ImageValidator handles URLs with multiple dots', function () {
-    expect(ImageValidator::isValidNotionImage('https://sub.example.com/image.file.jpg'))->toBeTrue();
-    expect(ImageValidator::isValidNotionImage('https://sub.example.com/image.file.webp'))->toBeFalse();
+    $validator = new ImageValidator;
+    expect($validator->isValidNotionImage('https://sub.example.com/image.file.jpg'))->toBeTrue()
+        ->and($validator->isValidNotionImage('https://sub.example.com/image.file.webp'))->toBeFalse();
 });

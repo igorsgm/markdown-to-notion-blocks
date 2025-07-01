@@ -27,7 +27,7 @@ final class Table extends NotionBlock
     {
         $tableRows = [];
         $tableWidth = 0;
-        $hasHeader = $this->detectHasHeader();
+        $hasHeader = $this->hasHeader();
 
         // Process table sections
         foreach ($this->node->children() as $section) {
@@ -70,11 +70,11 @@ final class Table extends NotionBlock
     }
 
     /**
-     * Detect if the table has a header row by checking for separators.
+     * Check if the table has a header row by checking for separators.
      *
      * @return bool True if table has headers
      */
-    private function detectHasHeader(): bool
+    private function hasHeader(): bool
     {
         // Check if there are at least 2 sections (header + body)
         $sections = [];
@@ -100,15 +100,23 @@ final class Table extends NotionBlock
         foreach ($row->children() as $cell) {
             $richTextContent = $this->richText($cell);
 
-            // If the cell is empty (no content), return empty array
-            if (empty($richTextContent) ||
-                (count($richTextContent) === 1 &&
-                 isset($richTextContent[0]['text']['content']) &&
-                 mb_trim($richTextContent[0]['text']['content']) === '')) {
+            // If the cell is empty (no content), add empty array
+            if (empty($richTextContent)) {
                 $cells[] = [];
-            } else {
-                $cells[] = $richTextContent;
+
+                continue;
             }
+
+            // Check for single empty text content
+            if (count($richTextContent) === 1 &&
+                isset($richTextContent[0]['text']['content']) &&
+                mb_trim($richTextContent[0]['text']['content']) === '') {
+                $cells[] = [];
+
+                continue;
+            }
+
+            $cells[] = $richTextContent;
         }
 
         return $cells;

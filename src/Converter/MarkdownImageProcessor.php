@@ -53,26 +53,31 @@ final class MarkdownImageProcessor
         foreach ($node->children() as $child) {
             if ($child instanceof Image) {
                 $hasImages = true;
-            } elseif ($child instanceof Link && $this->isImageLink($child)) {
+
+                continue;
+            }
+
+            if ($child instanceof Link && $this->isImageLink($child)) {
                 $hasImages = true;
-            } elseif ($child instanceof Text) {
+
+                continue;
+            }
+
+            if ($child instanceof Text) {
                 $text = $child->getLiteral();
                 // Remove the "!" that precedes image links
                 $cleanText = preg_replace('/!\s*$/', '', $text);
                 $textContent .= $cleanText;
-            } else {
-                // Check if this child has meaningful text content
-                $text = $this->getTextContent($child);
-                $textContent .= $text;
+
+                continue;
             }
+
+            // Check if this child has meaningful text content
+            $text = $this->getTextContent($child);
+            $textContent .= $text;
         }
 
-        // If we have images and the only text content is whitespace or "!", skip this paragraph
-        if ($hasImages && mb_trim($textContent) === '') {
-            return true;
-        }
-
-        return false;
+        return $hasImages && mb_trim($textContent) === '';
     }
 
     /**
@@ -89,16 +94,18 @@ final class MarkdownImageProcessor
         $children = iterator_to_array($parent->children());
         $linkIndex = array_search($link, $children, true);
 
-        if ($linkIndex > 0) {
-            $previousNode = $children[$linkIndex - 1];
-            if ($previousNode instanceof Text) {
-                $text = $previousNode->getLiteral();
-
-                return str_ends_with($text, '!');
-            }
+        if ($linkIndex <= 0) {
+            return false;
         }
 
-        return false;
+        $previousNode = $children[$linkIndex - 1];
+        if (!$previousNode instanceof Text) {
+            return false;
+        }
+
+        $text = $previousNode->getLiteral();
+
+        return str_ends_with($text, '!');
     }
 
     /**
