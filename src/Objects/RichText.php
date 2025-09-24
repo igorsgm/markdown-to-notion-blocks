@@ -95,13 +95,13 @@ final class RichText
 
             $object['text']['content'] = $this->getTextContent($node);
 
-            // If `$object['text']['content']` length is more than 2000 characters, split it into multiple objects.
-            if (mb_strlen($object['text']['content']) > 2000) {
+            // If `$object['text']['content']` length is more than 1950 characters, split it into multiple objects.
+            if (mb_strlen($object['text']['content']) > 1950) {
                 $content = $object['text']['content'];
 
-                while (mb_strlen($content) > 2000) {
-                    $object['text']['content'] = mb_substr($content, 0, 2000);
-                    $content = mb_substr($content, 2000);
+                while (mb_strlen($content) > 1950) {
+                    $object['text']['content'] = mb_substr($content, 0, 1950);
+                    $content = mb_substr($content, 1950);
 
                     $objects[] = $object;
                     $object = self::defaultObject();
@@ -116,8 +116,8 @@ final class RichText
                 $object['text']['link'] = ['url' => $link];
             }
 
-            // If `$object['text']['link']['url']` length is more than 2000 characters, set a `null` value.
-            if (is_array($object['text']['link']) && mb_strlen($object['text']['link']['url']) > 2000) {
+            // If `$object['text']['link']['url']` length is more than 1950 characters, set a `null` value.
+            if (is_array($object['text']['link']) && mb_strlen($object['text']['link']['url']) > 1950) {
                 $object['text']['link'] = null;
             }
 
